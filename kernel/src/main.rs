@@ -8,7 +8,14 @@ fn panic(_info: &PanicInfo) -> ! {
     loop {}
 }
 
-fn start(_info: &'static mut bootloader_api::BootInfo) -> ! {
+fn start(boot_info: &'static mut bootloader_api::BootInfo) -> ! {
+    if let Some(framebuffer) = boot_info.framebuffer.as_mut() {
+        let step = framebuffer.info().bytes_per_pixel;
+        for byte in framebuffer.buffer_mut().into_iter().step_by(step) {
+            *byte = 0xFF;
+        }
+    }
+
     loop {}
 }
 
