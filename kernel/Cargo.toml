@@ -9,4 +9,8 @@ test = false
 bench = false
 
 [dependencies]
+bootloader-x86_64-common = "0.11.7"
 bootloader_api = "0.11.7"
+conquer-once = { version = "0.4.0", default-features = false }
+embedded-graphics = "0.8.1"
+log = { version = "0.4.21", default-features = false }
