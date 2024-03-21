@@ -4,8 +4,8 @@ use conquer_once::spin::OnceCell;
 
 pub(crate) static LOGGER: OnceCell<LockedLogger> = OnceCell::uninit();
 
-pub(crate) fn init_logger(framebuffer: &'static mut [u8], info: FrameBufferInfo) {
-    let logger = LOGGER.get_or_init(|| LockedLogger::new(framebuffer, info, true, false));
+pub(crate) fn init_logger(buf: &'static mut [u8], info: FrameBufferInfo) {
+    let logger = LOGGER.get_or_init(move || LockedLogger::new(buf, info, true, false));
     log::set_logger(logger).expect("Logger already set");
     log::set_max_level(log::LevelFilter::Trace);
     log::info!("Logger initialised");

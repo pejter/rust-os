@@ -8,22 +8,23 @@ use embedded_graphics::{
     Pixel,
 };
 pub struct Display<'f> {
-    fb: &'f mut FrameBuffer,
+    fb: &'f mut [u8],
+    info: FrameBufferInfo,
 }
 
 impl<'f> Display<'f> {
-    pub fn new(fb: &'f mut FrameBuffer) -> Self {
-        Display { fb }
+    pub fn new(fb: &'f mut [u8], info: FrameBufferInfo) -> Self {
+        Display { fb, info }
     }
 
     fn draw_pixel(&mut self, Pixel(pos, color): Pixel<Rgb888>) {
-        let info = self.fb.info();
         let x = usize::try_from(pos.x).unwrap();
         let y = usize::try_from(pos.y).unwrap();
 
-        if (0..info.width).contains(&x) && (0..info.height).contains(&y) {
+        if (0..self.info.width).contains(&x) && (0..self.info.height).contains(&y) {
             set_pixel(
                 self.fb,
+                self.info,
                 &Position { x, y },
                 &Color {
                     r: color.r(),
@@ -53,10 +54,9 @@ impl DrawTarget for Display<'_> {
 
 impl OriginDimensions for Display<'_> {
     fn size(&self) -> embedded_graphics::prelude::Size {
-        let info = self.fb.info();
         Size::new(
-            info.width.try_into().unwrap(),
-            info.height.try_into().unwrap(),
+            self.info.width.try_into().unwrap(),
+            self.info.height.try_into().unwrap(),
         )
     }
 }
@@ -74,16 +74,14 @@ pub struct Color {
     pub b: u8,
 }
 
-pub fn set_pixel(fb: &mut FrameBuffer, pos: &Position, color: &Color) {
-    let info = fb.info();
-
+pub fn set_pixel(fb: &mut [u8], info: FrameBufferInfo, pos: &Position, color: &Color) {
     let pixel_offset = {
         let row_offset = info.stride * pos.y;
         row_offset + pos.x
     };
     let pixel_start = pixel_offset * info.bytes_per_pixel;
     let pixel_end = pixel_start + info.bytes_per_pixel;
-    let pixel_bytes = &mut fb.buffer_mut()[pixel_start..pixel_end];
+    let pixel_bytes = &mut fb[pixel_start..pixel_end];
 
     match info.pixel_format {
         PixelFormat::Bgr => {
