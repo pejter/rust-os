@@ -3,6 +3,7 @@
 #![feature(abi_x86_interrupt)]
 
 mod framebuffer;
+mod gdt;
 mod interrupt;
 mod logger;
 
@@ -27,6 +28,7 @@ fn panic(info: &PanicInfo) -> ! {
 
 fn start(boot_info: &'static mut bootloader_api::BootInfo) -> ! {
     interrupt::init();
+    gdt::init();
 
     if let Some(framebuffer) = boot_info.framebuffer.as_mut() {
         let info = framebuffer.info();
@@ -52,6 +54,11 @@ fn start(boot_info: &'static mut bootloader_api::BootInfo) -> ! {
 
     // Breakpoint
     x86_64::instructions::interrupts::int3();
+
+    fn stack_overflow() {
+        stack_overflow();
+    };
+    stack_overflow();
 
     // Page fault
     unsafe {

@@ -1,13 +1,16 @@
 use conquer_once::spin::OnceCell;
 use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame};
 
+use crate::gdt;
+
 pub(crate) static IDT: OnceCell<InterruptDescriptorTable> = OnceCell::uninit();
 
 pub(crate) fn init() {
     IDT.get_or_init(|| {
         let mut idt = InterruptDescriptorTable::new();
         idt.breakpoint.set_handler_fn(breakpoint_handler);
-        idt.double_fault.set_handler_fn(double_fault_handler);
+        let double_fault_handler = idt.double_fault.set_handler_fn(double_fault_handler);
+        unsafe { double_fault_handler.set_stack_index(gdt::DOUBLE_FAULT_STACK_INDEX) };
         idt
     })
     .load();
