@@ -48,6 +48,7 @@ pub(crate) fn init() {
         }
     });
 
+    log::info!("Loading GDT");
     gdt.load();
     unsafe {
         CS::set_reg(*kernel);

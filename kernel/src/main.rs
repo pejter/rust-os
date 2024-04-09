@@ -34,6 +34,7 @@ fn start(boot_info: &'static mut bootloader_api::BootInfo) -> ! {
     gdt::init();
 
     if let Some(framebuffer) = boot_info.framebuffer.as_mut() {
+        log::trace!("Framebuffer found, initialising display");
         let info = framebuffer.info();
         let mut display = Display::new(framebuffer.buffer_mut(), info);
         display.clear(Rgb888::BLACK).expect("Clear screen");
@@ -55,7 +56,7 @@ fn start(boot_info: &'static mut bootloader_api::BootInfo) -> ! {
 
     fn stack_overflow() {
         stack_overflow();
-    };
+    }
     stack_overflow();
 
     // Page fault
