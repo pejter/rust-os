@@ -27,12 +27,14 @@ fn panic(info: &PanicInfo) -> ! {
 }
 
 fn start(boot_info: &'static mut bootloader_api::BootInfo) -> ! {
+    init_logger();
+    log::info!("Hello kernel!");
+
     interrupt::init();
     gdt::init();
 
     if let Some(framebuffer) = boot_info.framebuffer.as_mut() {
         let info = framebuffer.info();
-        // Draw some text
         let mut display = Display::new(framebuffer.buffer_mut(), info);
         display.clear(Rgb888::BLACK).expect("Clear screen");
 
@@ -46,10 +48,6 @@ fn start(boot_info: &'static mut bootloader_api::BootInfo) -> ! {
             style,
         );
         text.draw(&mut display).expect("Draw text");
-
-        // Init text mode
-        init_logger(framebuffer.buffer_mut(), info);
-        log::info!("Hello kernel!");
     }
 
     // Breakpoint

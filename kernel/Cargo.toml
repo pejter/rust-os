@@ -14,4 +14,6 @@ bootloader_api = "0.11.7"
 conquer-once = { version = "0.4.0", default-features = false }
 embedded-graphics = "0.8.1"
 log = { version = "0.4.21", default-features = false }
+spin = "0.9.8"
+uart_16550 = "0.3.0"
 x86_64 = "0.15.1"
